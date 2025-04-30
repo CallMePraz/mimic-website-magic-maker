@@ -2,19 +2,28 @@
 import React, { useState } from 'react';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 import StarRating from './StarRating';
 import { toast } from 'sonner';
 
 const FeedbackForm = () => {
   const [rating, setRating] = useState(3);
   const [performaOption, setPerformaOption] = useState('normal');
-  const [features, setFeatures] = useState<string[]>(['semua']);
+  const [features, setFeatures] = useState<string[]>([]);
   const [comment, setComment] = useState('');
+  const [otherFeature, setOtherFeature] = useState('');
 
   const handleFeatureChange = (feature: string) => {
     if (feature === 'semua') {
-      setFeatures(['semua']);
+      // If "Semua Fitur" is selected, clear all other selections
+      if (features.includes('semua')) {
+        setFeatures([]);
+      } else {
+        setFeatures(['semua']);
+      }
     } else {
+      // For other options, toggle their selection
+      // Remove "Semua Fitur" if it was selected
       const newFeatures = features.includes('semua')
         ? [feature]
         : features.includes(feature)
@@ -30,15 +39,17 @@ const FeedbackForm = () => {
     // Reset form
     setRating(3);
     setPerformaOption('normal');
-    setFeatures(['semua']);
+    setFeatures([]);
     setComment('');
+    setOtherFeature('');
   };
 
   const handleCancel = () => {
     setRating(3);
     setPerformaOption('normal');
-    setFeatures(['semua']);
+    setFeatures([]);
     setComment('');
+    setOtherFeature('');
   };
 
   // Function to update the star rating and handle conditional logic
@@ -105,16 +116,6 @@ const FeedbackForm = () => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    id="semua"
-                    checked={features.includes('semua')}
-                    onChange={() => handleFeatureChange('semua')}
-                    className="w-4 h-4 mr-2"
-                  />
-                  <label htmlFor="semua" className="text-gray-700">Semua Fitur</label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
                     id="pembukaan"
                     checked={features.includes('pembukaan')}
                     onChange={() => handleFeatureChange('pembukaan')}
@@ -164,22 +165,44 @@ const FeedbackForm = () => {
                     Fitur lainnya
                   </label>
                 </div>
+                
+                {/* Text input for "Fitur lainnya" that appears when "other" is checked */}
+                {features.includes('other') && !features.includes('semua') && (
+                  <div className="ml-6 mt-2">
+                    <Input
+                      type="text"
+                      placeholder="Tuliskan fitur lainnya"
+                      value={otherFeature}
+                      onChange={(e) => setOtherFeature(e.target.value)}
+                      className="w-full max-w-md"
+                    />
+                  </div>
+                )}
+                
+                {/* Moved "Semua Fitur" to the bottom */}
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="semua"
+                    checked={features.includes('semua')}
+                    onChange={() => handleFeatureChange('semua')}
+                    className="w-4 h-4 mr-2"
+                  />
+                  <label htmlFor="semua" className="text-gray-700">Semua Fitur</label>
+                </div>
               </div>
             </div>
-          </>
-        )}
 
-        {/* The comment section should also only show when rating is 3 or less */}
-        {rating <= 3 && (
-          <div className="mb-6">
-            <h2 className="font-semibold mb-3">Komentar (optional)</h2>
-            <Textarea
-              placeholder="Berikan komentar Anda"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full min-h-[120px]"
-            />
-          </div>
+            <div className="mb-6">
+              <h2 className="font-semibold mb-3">Komentar (optional)</h2>
+              <Textarea
+                placeholder="Berikan komentar Anda"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full min-h-[120px]"
+              />
+            </div>
+          </>
         )}
 
         <div className="flex justify-end gap-3">
